@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -39,10 +40,8 @@ namespace SimiGraph
 
         List<string> hanziList;
 
-        public Searcher(List<string> hanziList)
+        public Searcher(string grapheme)
         {
-            this.hanziList = hanziList.Distinct().ToList();
-
             int MaxThreadsCount = Environment.ProcessorCount * 4;
             ServicePointManager.DefaultConnectionLimit = MaxThreadsCount;
             ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
@@ -51,6 +50,8 @@ namespace SimiGraph
             client.DefaultRequestHeaders.Add("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36");
             client.BaseAddress = new System.Uri("https://www.zdic.net");
+
+            SetHanziListByGrapheme(grapheme);
         }
 
         public async Task<List<FoundObj>> HanziToFoundObjList(string hanzi)
@@ -68,7 +69,7 @@ namespace SimiGraph
 
             foreach (var comp2 in comp2List)
             {
-                if(hanzi != comp2 && comp2.Trim().Length == 1)
+                if(hanzi != comp2)
                 { 
                     resultList.Add(new FoundObj()
                     {
@@ -79,6 +80,24 @@ namespace SimiGraph
             }
 
             return resultList;
+        }
+
+        public void SetHanziListByGrapheme(string grapheme)
+        {
+            List<string> hanziList = new List<string>();
+
+            string graphemeWebsite = "";
+
+            graphemeWebsite = client.GetStringAsync(
+                "https://www.zdic.net/zd/bs/bs/?bs=" + HttpUtility.UrlEncode(grapheme)).Result;
+
+            foreach (Match match in Regex.Matches(graphemeWebsite, @"<A[^>]*_blank>([^<]*)<\/A>"))
+            {
+                var hanzi = match.Groups[1].Value.Trim();
+                hanziList.Add(hanzi.Trim());
+            }
+
+            this.hanziList = hanziList.Distinct().ToList();
         }
 
         public void RunAndGetResultList()
@@ -107,8 +126,16 @@ namespace SimiGraph
                     if (item == null) continue;
 
                     writetext.WriteLine(item.ToString());
+                    writetext.WriteLine("<br>");
                 }
             }
+
+            var p = new Process();
+            p.StartInfo = new ProcessStartInfo(@"result.html")
+            {
+                UseShellExecute = true
+            };
+            p.Start();
         }
     }
 }

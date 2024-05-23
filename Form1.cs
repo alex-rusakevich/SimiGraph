@@ -1,4 +1,8 @@
+using System.Net;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
+using System.Web;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SimiGraph
 {
@@ -11,23 +15,32 @@ namespace SimiGraph
 
         private void execSearchButton_Click(object sender, EventArgs e)
         {
-            List<string> hanziList = new List<string>();
+            execSearchButton.Enabled = false;
+            var execSearchButtonTextPrev = execSearchButton.Text;
+            execSearchButton.Text = "Пожалуйста, подождите...";
 
-            foreach (var hanzi in this.hanziTextBox.Text.Split("\n"))
+            new Thread(() =>
             {
-                if(hanzi.Trim() == "")
-                {
-                    continue;
-                }
+                Thread.CurrentThread.IsBackground = true;
 
-                if(!Regex.Match(hanzi, @"^\s*[<\d]").Success)
+                var searcher = new Searcher(graphemeTextBox.Text.Trim());
+                searcher.RunAndGetResultList();
+
+                this.Invoke(new Action(() =>
                 {
-                    hanziList.Add(hanzi.Trim());
-                }
+                    execSearchButton.Enabled = true;
+                    execSearchButton.Text = execSearchButtonTextPrev;
+                }));
+            }).Start();
+        }
+
+        private void graphemeTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r')
+            {
+                e.Handled = true;
+                this.execSearchButton.PerformClick();
             }
-
-            var searcher = new Searcher(hanziList);
-            searcher.RunAndGetResultList();
         }
     }
 }

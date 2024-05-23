@@ -28,25 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            hanziTextBox = new TextBox();
             execSearchButton = new Button();
+            graphemeTextBox = new TextBox();
             SuspendLayout();
-            // 
-            // hanziTextBox
-            // 
-            hanziTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            hanziTextBox.Location = new Point(12, 12);
-            hanziTextBox.Multiline = true;
-            hanziTextBox.Name = "hanziTextBox";
-            hanziTextBox.PlaceholderText = "Скопируйте и вставьте сюда иероглифы";
-            hanziTextBox.ScrollBars = ScrollBars.Vertical;
-            hanziTextBox.Size = new Size(775, 451);
-            hanziTextBox.TabIndex = 0;
             // 
             // execSearchButton
             // 
-            execSearchButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            execSearchButton.Location = new Point(521, 469);
+            execSearchButton.Location = new Point(12, 45);
             execSearchButton.Name = "execSearchButton";
             execSearchButton.Size = new Size(266, 29);
             execSearchButton.TabIndex = 1;
@@ -54,13 +42,24 @@
             execSearchButton.UseVisualStyleBackColor = true;
             execSearchButton.Click += execSearchButton_Click;
             // 
+            // graphemeTextBox
+            // 
+            graphemeTextBox.Location = new Point(12, 12);
+            graphemeTextBox.Name = "graphemeTextBox";
+            graphemeTextBox.PlaceholderText = "Введите графему";
+            graphemeTextBox.Size = new Size(266, 27);
+            graphemeTextBox.TabIndex = 2;
+            graphemeTextBox.KeyPress += graphemeTextBox_KeyPress;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(799, 510);
+            ClientSize = new Size(293, 83);
+            Controls.Add(graphemeTextBox);
             Controls.Add(execSearchButton);
-            Controls.Add(hanziTextBox);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "Form1";
             Text = "SimiGraph";
             ResumeLayout(false);
@@ -68,8 +67,7 @@
         }
 
         #endregion
-
-        private TextBox hanziTextBox;
         private Button execSearchButton;
+        private TextBox graphemeTextBox;
     }
 }

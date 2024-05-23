@@ -61,12 +61,11 @@ namespace SimiGraph.Properties {
         }
         
         /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        ///   Ищет локализованную строку, похожую на .
         /// </summary>
-        internal static System.Drawing.Bitmap combination {
+        internal static string ResultTemplate {
             get {
-                object obj = ResourceManager.GetObject("combination", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ResourceManager.GetString("ResultTemplate", resourceCulture);
             }
         }
     }
