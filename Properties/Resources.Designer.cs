@@ -22,7 +22,7 @@ namespace SimiGraph.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace SimiGraph.Properties {
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SimiGraph.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace SimiGraph.Properties {
         ///   обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,26 @@ namespace SimiGraph.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на .
+        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE HTML&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;title&gt;{{graphemes}}: сравнительный список&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;Сравнительный список для графем(ы) {{graphemes}}:&lt;/h1&gt;
+        ///
+        ///    &lt;table&gt;
+        ///        {{ for found_obj in find_obj_list }}
+        ///            &lt;tr&gt;
+        ///                &lt;td&gt;{{ found_obj.comp1 }}&lt;/td&gt;
+        ///                &lt;td&gt;{{ found_obj.comp2 }}&lt;/td&gt;
+        ///            &lt;/tr&gt;
+        ///        {{ end }}
+        ///    &lt;/table&gt;
+        ///&lt;/body&gt;
+        ///&lt;/html&gt;.
         /// </summary>
-        internal static string ResultTemplate {
+        public static string ResultTemplate {
             get {
                 return ResourceManager.GetString("ResultTemplate", resourceCulture);
             }

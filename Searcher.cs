@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Scriban.Runtime;
+using Scriban;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using static System.Net.Mime.MediaTypeNames;
@@ -39,6 +42,7 @@ namespace SimiGraph
         }
 
         List<string> hanziList = new List<string>();
+        string graphemes;
 
         public Searcher(string graphemes)
         {
@@ -46,6 +50,8 @@ namespace SimiGraph
             {
                 throw new ArgumentException("graphemes must not contain empty string or null");
             }
+
+            this.graphemes = graphemes;
 
             int MaxThreadsCount = Environment.ProcessorCount;
             ServicePointManager.DefaultConnectionLimit = MaxThreadsCount;
@@ -78,11 +84,13 @@ namespace SimiGraph
             foreach (var comp2 in comp2List)
             {
                 if(hanzi != comp2)
-                { 
+                {
+                    var noDigitsComp2 = Regex.Replace(comp2, @"\d+", "");
+
                     resultList.Add(new FoundObj()
                     {
                         comp1 = hanzi,
-                        comp2 = comp2
+                        comp2 = noDigitsComp2
                     });
                 }
             }
@@ -127,20 +135,28 @@ namespace SimiGraph
             }
 
             resultList = resultList.DistinctBy(foundObj => foundObj.ToString()).ToList();
+            resultList.RemoveAll(item => item == null);
 
-            using (StreamWriter writetext = new StreamWriter("result.html"))
+            Directory.CreateDirectory("Results");
+
+            using (StreamWriter writerForText = new StreamWriter(@$"Results\{this.graphemes}.html")) // Specialized result folders
             {
-                foreach (var item in resultList)
-                {
-                    if (item == null) continue;
+                TemplateContext context = new TemplateContext();
+                context.LoopLimit = 0;
 
-                    writetext.WriteLine(item.ToString());
-                    writetext.WriteLine("<br>");
-                }
+                var scriptObject = new ScriptObject();
+                scriptObject.Add("find_obj_list", resultList);
+                scriptObject.Add("graphemes", this.graphemes);
+                context.PushGlobal(scriptObject);
+
+                var template = Template.ParseLiquid(Properties.Resources.ResultTemplate);
+                string templateStr = template.Render(context);
+
+                writerForText.Write(templateStr);
             }
 
             var p = new Process();
-            p.StartInfo = new ProcessStartInfo(@"result.html")
+            p.StartInfo = new ProcessStartInfo(@$"Results\{this.graphemes}.html")
             {
                 UseShellExecute = true
             };

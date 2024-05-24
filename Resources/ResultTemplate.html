@@ -1,1 +1,33 @@
-﻿
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta charset="UTF-8">
+
+    <title>{{graphemes}}: сравнительный список</title>
+
+    <style>
+        table {
+            font-size: 20px;
+        }
+
+        .unselectable {
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Сравнительный список для графем(ы) {{graphemes}} ({% find_obj_list.size %} пар(ы)):</h1>
+
+    <table>
+        {% for found_obj in find_obj_list %}
+        <tr>
+            <td>{{ forloop.index | math.plus 1 }}.</td>
+            <td>{{ found_obj.comp1 }}</td>
+            <td>{{ found_obj.comp2 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
