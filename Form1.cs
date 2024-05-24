@@ -15,7 +15,17 @@ namespace SimiGraph
 
         private void execSearchButton_Click(object sender, EventArgs e)
         {
+            if(string.IsNullOrWhiteSpace(graphemeTextBox.Text))
+            {
+                MessageBox.Show("Строка поиска не должна быть пустой", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var graphemes = Regex.Replace(graphemeTextBox.Text, @"\s+", "");
+
             execSearchButton.Enabled = false;
+            graphemeTextBox.Enabled = false;
             var execSearchButtonTextPrev = execSearchButton.Text;
             execSearchButton.Text = "Пожалуйста, подождите...";
 
@@ -23,12 +33,13 @@ namespace SimiGraph
             {
                 Thread.CurrentThread.IsBackground = true;
 
-                var searcher = new Searcher(graphemeTextBox.Text.Trim());
+                var searcher = new Searcher(graphemes);
                 searcher.RunAndGetResultList();
 
                 this.Invoke(new Action(() =>
                 {
                     execSearchButton.Enabled = true;
+                    graphemeTextBox.Enabled = true;
                     execSearchButton.Text = execSearchButtonTextPrev;
                 }));
             }).Start();

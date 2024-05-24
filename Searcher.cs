@@ -38,20 +38,28 @@ namespace SimiGraph
             return result;
         }
 
-        List<string> hanziList;
+        List<string> hanziList = new List<string>();
 
-        public Searcher(string grapheme)
+        public Searcher(string graphemes)
         {
-            int MaxThreadsCount = Environment.ProcessorCount * 4;
+            if(string.IsNullOrWhiteSpace(graphemes))
+            {
+                throw new ArgumentException("graphemes must not contain empty string or null");
+            }
+
+            int MaxThreadsCount = Environment.ProcessorCount;
             ServicePointManager.DefaultConnectionLimit = MaxThreadsCount;
-            ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
-            ThreadPool.SetMinThreads(2, 2);
 
             client.DefaultRequestHeaders.Add("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36");
-            client.BaseAddress = new System.Uri("https://www.zdic.net");
+            client.BaseAddress = new Uri("https://www.zdic.net");
 
-            SetHanziListByGrapheme(grapheme);
+            foreach(var grapheme in graphemes)
+            {
+                SetHanziListByGrapheme(grapheme);
+            }
+
+            this.hanziList = this.hanziList.Distinct().ToList();
         }
 
         public async Task<List<FoundObj>> HanziToFoundObjList(string hanzi)
@@ -82,14 +90,15 @@ namespace SimiGraph
             return resultList;
         }
 
-        public void SetHanziListByGrapheme(string grapheme)
+        public void SetHanziListByGrapheme(char grapheme)
         {
             List<string> hanziList = new List<string>();
 
             string graphemeWebsite = "";
 
             graphemeWebsite = client.GetStringAsync(
-                "https://www.zdic.net/zd/bs/bs/?bs=" + HttpUtility.UrlEncode(grapheme)).Result;
+                "https://www.zdic.net/zd/bs/bs/?bs=" 
+                + HttpUtility.UrlEncode(grapheme.ToString())).Result;
 
             foreach (Match match in Regex.Matches(graphemeWebsite, @"<A[^>]*_blank>([^<]*)<\/A>"))
             {
@@ -97,7 +106,7 @@ namespace SimiGraph
                 hanziList.Add(hanzi.Trim());
             }
 
-            this.hanziList = hanziList.Distinct().ToList();
+            this.hanziList.AddRange(hanziList);
         }
 
         public void RunAndGetResultList()

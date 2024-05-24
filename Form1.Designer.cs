@@ -34,7 +34,7 @@
             // 
             // execSearchButton
             // 
-            execSearchButton.Location = new Point(12, 45);
+            execSearchButton.Location = new Point(290, 45);
             execSearchButton.Name = "execSearchButton";
             execSearchButton.Size = new Size(266, 29);
             execSearchButton.TabIndex = 1;
@@ -46,8 +46,8 @@
             // 
             graphemeTextBox.Location = new Point(12, 12);
             graphemeTextBox.Name = "graphemeTextBox";
-            graphemeTextBox.PlaceholderText = "Введите графему";
-            graphemeTextBox.Size = new Size(266, 27);
+            graphemeTextBox.PlaceholderText = "Введите графему или их последовательность без разделителей";
+            graphemeTextBox.Size = new Size(544, 27);
             graphemeTextBox.TabIndex = 2;
             graphemeTextBox.KeyPress += graphemeTextBox_KeyPress;
             // 
@@ -55,7 +55,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(293, 83);
+            ClientSize = new Size(568, 83);
             Controls.Add(graphemeTextBox);
             Controls.Add(execSearchButton);
             FormBorderStyle = FormBorderStyle.FixedSingle;
