@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -29,20 +30,21 @@ namespace SimiGraph
             var execSearchButtonTextPrev = execSearchButton.Text;
             execSearchButton.Text = "Пожалуйста, подождите...";
 
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-
+            Task.Factory.StartNew(() => {
                 var searcher = new Searcher(graphemes);
                 searcher.RunAndGetResultList();
-
-                this.Invoke(new Action(() =>
+            }).ContinueWith(t => {
+                if (t.IsFaulted)
                 {
+                    ExceptionDispatchInfo.Capture(t.Exception.InnerException!).Throw();
+                }
+
+                this.Invoke(new Action(() => {
                     execSearchButton.Enabled = true;
                     graphemeTextBox.Enabled = true;
                     execSearchButton.Text = execSearchButtonTextPrev;
                 }));
-            }).Start();
+            });
         }
 
         private void graphemeTextBox_KeyPress(object sender, KeyPressEventArgs e)

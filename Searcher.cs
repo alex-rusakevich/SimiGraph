@@ -24,10 +24,15 @@ namespace SimiGraph
 
     internal class Searcher
     {
-        HttpClient client = new HttpClient(new HttpClientHandler
-        {
-            UseProxy = false
-        });
+        HttpClient client = new HttpClient();
+        List<string> hanziList = new List<string>();
+        string graphemes;
+
+        /// <summary>
+        /// Find all values between 同“ and “ and return them as a list.
+        /// </summary>
+        /// <param name="txt">Text to search in, should be zdic page's html</param>
+        /// <returns>List of values present in 同“”</returns>
         public static List<string> StrToListOfComp2(string txt)
         {
             List<string> result = new List<string>();
@@ -40,9 +45,6 @@ namespace SimiGraph
 
             return result;
         }
-
-        List<string> hanziList = new List<string>();
-        string graphemes;
 
         public Searcher(string graphemes)
         {
@@ -120,23 +122,26 @@ namespace SimiGraph
         public void RunAndGetResultList()
         {
             List<FoundObj> resultList = new List<FoundObj>();
+            List<Task> hanziToListTasks = new List<Task>();
 
-            using (var countdownEvent = new CountdownEvent(hanziList.Count))
+            #region Fetching and processing info about all hanzi
+            foreach (var hanzi in hanziList)
             {
-                for (var i = 0; i < hanziList.Count; i++)
-                    ThreadPool.QueueUserWorkItem(
-                        async x =>
-                        {
-                            resultList.AddRange(await HanziToFoundObjList((string)x!));
-                            countdownEvent.Signal();
-                        }, this.hanziList[i]);
+                Task hanziTask = Task.Run(async () =>
+                {
+                    resultList.AddRange(await HanziToFoundObjList(hanzi));
+                });
 
-                countdownEvent.Wait();
+                hanziToListTasks.Add(hanziTask);
             }
+
+            Task.WaitAll(hanziToListTasks.ToArray());
+            #endregion
 
             resultList = resultList.DistinctBy(foundObj => foundObj.ToString()).ToList();
             resultList.RemoveAll(item => item == null);
 
+            #region Turning result list into .html
             Directory.CreateDirectory("Results");
 
             using (StreamWriter writerForText = new StreamWriter(@$"Results\{this.graphemes}.html")) // Specialized result folders
@@ -154,6 +159,7 @@ namespace SimiGraph
 
                 writerForText.Write(templateStr);
             }
+            #endregion
 
             var p = new Process();
             p.StartInfo = new ProcessStartInfo(@$"Results\{this.graphemes}.html")
