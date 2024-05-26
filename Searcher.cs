@@ -60,6 +60,10 @@ namespace SimiGraph
 
             client.DefaultRequestHeaders.Add("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9,it;q=0.8,es;q=0.7");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "identity");
+            client.DefaultRequestHeaders.Add("Referer", "https://google.com/");
+
             client.BaseAddress = new Uri("https://www.zdic.net");
 
             foreach(var grapheme in graphemes)
