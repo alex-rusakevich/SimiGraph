@@ -123,7 +123,11 @@ namespace SimiGraph
             this.hanziList.AddRange(hanziList);
         }
 
-        public void RunAndGetResultList()
+        /// <summary>
+        /// Generate and return list with results
+        /// </summary>
+        /// <returns>Key is graphemes, value is List<FoundObj></returns>
+        public KeyValuePair<string, List<FoundObj>> GetGraphemesAndResultList()
         {
             List<FoundObj> resultList = new List<FoundObj>();
             List<Task> hanziToListTasks = new List<Task>();
@@ -145,32 +149,7 @@ namespace SimiGraph
             resultList = resultList.DistinctBy(foundObj => foundObj.ToString()).ToList();
             resultList.RemoveAll(item => item == null);
 
-            #region Turning result list into .html
-            Directory.CreateDirectory("Results");
-
-            using (StreamWriter writerForText = new StreamWriter(@$"Results\{this.graphemes}.html")) // Specialized result folders
-            {
-                TemplateContext context = new TemplateContext();
-                context.LoopLimit = 0;
-
-                var scriptObject = new ScriptObject();
-                scriptObject.Add("find_obj_list", resultList);
-                scriptObject.Add("graphemes", this.graphemes);
-                context.PushGlobal(scriptObject);
-
-                var template = Template.ParseLiquid(Properties.Resources.ResultTemplate);
-                string templateStr = template.Render(context);
-
-                writerForText.Write(templateStr);
-            }
-            #endregion
-
-            var p = new Process();
-            p.StartInfo = new ProcessStartInfo(@$"Results\{this.graphemes}.html")
-            {
-                UseShellExecute = true
-            };
-            p.Start();
+            return new KeyValuePair<string, List<FoundObj>>(this.graphemes, resultList);
         }
     }
 }
