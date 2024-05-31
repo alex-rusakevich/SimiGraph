@@ -7,6 +7,10 @@
     <title>{{graphemes}}: сравнительный список</title>
 
     <style>
+        * {
+            font-family: sans-serif;
+        }
+
         table {
             font-size: 20px;
         }
@@ -19,6 +23,8 @@
 
 <body>
     <h1>Сравнительный список для графем(ы) {{graphemes}} ({% find_obj_list.size %} пар(ы)):</h1>
+
+    <p><i>Подсказка: таблица снизу доступна для выделения, копирования и вставки в Word</i></p>
 
     <table>
         {% for found_obj in find_obj_list %}

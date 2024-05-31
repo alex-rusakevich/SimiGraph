@@ -28,36 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            execSearchButton = new Button();
-            graphemeTextBox = new TextBox();
+            ExecSearchButton = new Button();
+            GraphemeTextBox = new TextBox();
             SuspendLayout();
             // 
-            // execSearchButton
+            // ExecSearchButton
             // 
-            execSearchButton.Location = new Point(290, 45);
-            execSearchButton.Name = "execSearchButton";
-            execSearchButton.Size = new Size(266, 29);
-            execSearchButton.TabIndex = 1;
-            execSearchButton.Text = "Найти иероглифы с синонимами";
-            execSearchButton.UseVisualStyleBackColor = true;
-            execSearchButton.Click += execSearchButton_Click;
+            ExecSearchButton.Location = new Point(290, 45);
+            ExecSearchButton.Name = "ExecSearchButton";
+            ExecSearchButton.Size = new Size(266, 29);
+            ExecSearchButton.TabIndex = 1;
+            ExecSearchButton.Text = "Найти иероглифы с синонимами";
+            ExecSearchButton.UseVisualStyleBackColor = true;
+            ExecSearchButton.Click += ExecSearchButton_Click;
             // 
-            // graphemeTextBox
+            // GraphemeTextBox
             // 
-            graphemeTextBox.Location = new Point(12, 12);
-            graphemeTextBox.Name = "graphemeTextBox";
-            graphemeTextBox.PlaceholderText = "Введите графему или их последовательность без разделителей";
-            graphemeTextBox.Size = new Size(544, 27);
-            graphemeTextBox.TabIndex = 2;
-            graphemeTextBox.KeyPress += graphemeTextBox_KeyPress;
+            GraphemeTextBox.Location = new Point(12, 12);
+            GraphemeTextBox.Name = "GraphemeTextBox";
+            GraphemeTextBox.PlaceholderText = "Введите графему или их последовательность без разделителей";
+            GraphemeTextBox.Size = new Size(544, 27);
+            GraphemeTextBox.TabIndex = 2;
+            GraphemeTextBox.KeyPress += GraphemeTextBox_KeyPress;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(568, 83);
-            Controls.Add(graphemeTextBox);
-            Controls.Add(execSearchButton);
+            Controls.Add(GraphemeTextBox);
+            Controls.Add(ExecSearchButton);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "Form1";
@@ -67,7 +67,7 @@
         }
 
         #endregion
-        private Button execSearchButton;
-        private TextBox graphemeTextBox;
+        private Button ExecSearchButton;
+        private TextBox GraphemeTextBox;
     }
 }

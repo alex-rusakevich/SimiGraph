@@ -1,3 +1,5 @@
+using SimiGraph.FileFormat;
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Security.Policy;
@@ -14,21 +16,21 @@ namespace SimiGraph
             InitializeComponent();
         }
 
-        private void execSearchButton_Click(object sender, EventArgs e)
+        private void ExecSearchButton_Click(object sender, EventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(graphemeTextBox.Text))
+            if(string.IsNullOrWhiteSpace(GraphemeTextBox.Text))
             {
                 MessageBox.Show("Строка поиска не должна быть пустой", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            var graphemes = Regex.Replace(graphemeTextBox.Text, @"\s+", "");
+            var graphemes = Regex.Replace(GraphemeTextBox.Text, @"\s+", "");
 
-            execSearchButton.Enabled = false;
-            graphemeTextBox.Enabled = false;
-            var execSearchButtonTextPrev = execSearchButton.Text;
-            execSearchButton.Text = "Пожалуйста, подождите...";
+            ExecSearchButton.Enabled = false;
+            GraphemeTextBox.Enabled = false;
+            var execSearchButtonTextPrev = ExecSearchButton.Text;
+            ExecSearchButton.Text = "Пожалуйста, подождите...";
 
             Task.Factory.StartNew(() => {
                 var searcher = new Searcher(graphemes);
@@ -42,8 +44,22 @@ namespace SimiGraph
                 {
                     if (savefile.ShowDialog() == DialogResult.OK)
                     {
-                        FileFormatProcessor.SaveResultAs(
-                            graphemesAndResList.Value, graphemesAndResList.Key, savefile.FileName);
+                        string fileExt = Path.GetExtension(savefile.FileName.ToLower());
+                        var fileFormatProcessor = FileFormatFactory.GetFormatProcessorByExt(fileExt);
+
+                        using(var fileStream = new FileStream(savefile.FileName, FileMode.OpenOrCreate))
+                        using (var resultStream = fileFormatProcessor.GenerateFormattedResult(
+                            graphemesAndResList.Value, graphemesAndResList.Key, savefile.FileName))
+                        {
+                            resultStream.CopyTo(fileStream);
+                        }
+
+                        var p = new Process();
+                        p.StartInfo = new ProcessStartInfo(savefile.FileName)
+                        {
+                            UseShellExecute = true
+                        };
+                        p.Start();
                     }
                 }));
             }).ContinueWith(t => { 
@@ -53,19 +69,19 @@ namespace SimiGraph
                 }
 
                 this.Invoke(new Action(() => {
-                    execSearchButton.Enabled = true;
-                    graphemeTextBox.Enabled = true;
-                    execSearchButton.Text = execSearchButtonTextPrev;
+                    ExecSearchButton.Enabled = true;
+                    GraphemeTextBox.Enabled = true;
+                    ExecSearchButton.Text = execSearchButtonTextPrev;
                 }));
             });
         }
 
-        private void graphemeTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        private void GraphemeTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == '\r')
             {
                 e.Handled = true;
-                this.execSearchButton.PerformClick();
+                this.ExecSearchButton.PerformClick();
             }
         }
     }

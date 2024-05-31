@@ -8,11 +8,12 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using static System.Net.Mime.MediaTypeNames;
+using SimiGraph.Util;
 
 
 namespace SimiGraph
 {
-    class FoundObj
+    public class FoundObj
     {
         public string? comp1 { get; set; }
         public string? comp2 { get; set; }
@@ -24,7 +25,7 @@ namespace SimiGraph
 
     internal class Searcher
     {
-        HttpClient client = new HttpClient();
+        SpoofHttpClient client = new SpoofHttpClient();
         List<string> hanziList = new List<string>();
         string graphemes;
 
@@ -54,17 +55,6 @@ namespace SimiGraph
             }
 
             this.graphemes = graphemes;
-
-            int MaxThreadsCount = Environment.ProcessorCount;
-            ServicePointManager.DefaultConnectionLimit = MaxThreadsCount;
-
-            client.DefaultRequestHeaders.Add("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36");
-            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9,it;q=0.8,es;q=0.7");
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "identity");
-            client.DefaultRequestHeaders.Add("Referer", "https://google.com/");
-
-            client.BaseAddress = new Uri("https://www.zdic.net");
 
             foreach(var grapheme in graphemes)
             {
@@ -104,6 +94,15 @@ namespace SimiGraph
             return resultList;
         }
 
+        /// <summary>
+        /// Fetch all hanzi which have grapheme and add them to this.hanziList.
+        /// <example>
+        /// <code>
+        /// SetHanziListByGrapheme('贝'); // this.hanziList == {'呗', ...}
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="grapheme"></param>
         public void SetHanziListByGrapheme(char grapheme)
         {
             List<string> hanziList = new List<string>();
@@ -146,8 +145,8 @@ namespace SimiGraph
             Task.WaitAll(hanziToListTasks.ToArray());
             #endregion
 
-            resultList = resultList.DistinctBy(foundObj => foundObj.ToString()).ToList();
             resultList.RemoveAll(item => item == null);
+            resultList = resultList.DistinctBy(foundObj => foundObj.ToString()).ToList();
 
             return new KeyValuePair<string, List<FoundObj>>(this.graphemes, resultList);
         }
