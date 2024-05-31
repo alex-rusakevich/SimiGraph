@@ -5,6 +5,17 @@
     /// </summary>
     public class SpoofHttpClient : HttpClient
     {
+        private static SpoofHttpClient? _instance;
+
+        public static SpoofHttpClient Instance
+        {
+            get
+            {
+                _instance ??= new SpoofHttpClient();
+                return _instance;
+            }
+        }
+
         private static readonly Dictionary<string, string> headers = new()
         {
             ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
@@ -13,7 +24,7 @@
             ["Referer"] = "https://google.com/",
         };
 
-        public SpoofHttpClient() : base()
+        private SpoofHttpClient() : base()
         {
             foreach (KeyValuePair<string, string> item in headers)
             {

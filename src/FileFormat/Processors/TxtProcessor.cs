@@ -16,7 +16,7 @@
 
                 foreach (var item in resultList)
                 {
-                    sw.WriteLine($"{counter++}.\t{item.comp1}\t{item.comp2}");
+                    sw.WriteLine($"{counter++}.\t{item.Comp1}\t{item.Comp2}");
                 }
             }
 

@@ -1,13 +1,5 @@
-﻿using Scriban.Runtime;
-using Scriban;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Reflection;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Web;
-using static System.Net.Mime.MediaTypeNames;
 using SimiGraph.Util;
 
 
@@ -15,19 +7,19 @@ namespace SimiGraph
 {
     public class FoundObj
     {
-        public string? comp1 { get; set; }
-        public string? comp2 { get; set; }
+        public string? Comp1 { get; set; }
+        public string? Comp2 { get; set; }
         public override string ToString()
         {
-            return $"{comp1} ~ {comp2}";
+            return $"{Comp1} ~ {Comp2}";
         }
     }
 
-    internal class Searcher
+    internal partial class Searcher
     {
-        SpoofHttpClient client = new SpoofHttpClient();
-        List<string> hanziList = new List<string>();
-        string graphemes;
+        private readonly SpoofHttpClient client = SpoofHttpClient.Instance;
+        private readonly List<string> hanziList = [];
+        private readonly string graphemes;
 
         /// <summary>
         /// Find all values between 同“ and “ and return them as a list.
@@ -36,8 +28,8 @@ namespace SimiGraph
         /// <returns>List of values present in 同“”</returns>
         public static List<string> StrToListOfComp2(string txt)
         {
-            List<string> result = new List<string>();
-            var matches = Regex.Matches(txt, @"同“([^“”]+)”");
+            List<string> result = [];
+            var matches = TongRegex().Matches(txt);
 
             foreach (Match match in matches)
             {
@@ -66,13 +58,13 @@ namespace SimiGraph
 
         public async Task<List<FoundObj>> HanziToFoundObjList(string hanzi)
         {
-            List<FoundObj> resultList = new List<FoundObj>();
+            List<FoundObj> resultList = [];
                 
             var encodedHanzi = HttpUtility.UrlEncode(hanzi);
             string link = $"hans/{encodedHanzi}";
             string htmlCode = await client.GetStringAsync(link).ConfigureAwait(false);
 
-            htmlCode = Regex.Replace(htmlCode, "<[^>]*>", String.Empty);
+            htmlCode = HtmlTagRegex().Replace(htmlCode, String.Empty);
             htmlCode = htmlCode.Replace("&ldquo;", "“");
             htmlCode = htmlCode.Replace("&rdquo;", "”");
             var comp2List = StrToListOfComp2(htmlCode);
@@ -81,12 +73,12 @@ namespace SimiGraph
             {
                 if(hanzi != comp2)
                 {
-                    var noDigitsComp2 = Regex.Replace(comp2, @"\d+", "");
+                    var noDigitsComp2 = NumberRegex().Replace(comp2, "");
 
                     resultList.Add(new FoundObj()
                     {
-                        comp1 = hanzi,
-                        comp2 = noDigitsComp2
+                        Comp1 = hanzi,
+                        Comp2 = noDigitsComp2
                     });
                 }
             }
@@ -105,15 +97,13 @@ namespace SimiGraph
         /// <param name="grapheme"></param>
         public void SetHanziListByGrapheme(char grapheme)
         {
-            List<string> hanziList = new List<string>();
+            List<string> hanziList = [];
 
-            string graphemeWebsite = "";
-
-            graphemeWebsite = client.GetStringAsync(
+            string graphemeWebsite = client.GetStringAsync(
                 "https://www.zdic.net/zd/bs/bs/?bs=" 
                 + HttpUtility.UrlEncode(grapheme.ToString())).Result;
 
-            foreach (Match match in Regex.Matches(graphemeWebsite, @"<A[^>]*_blank>([^<]*)<\/A>"))
+            foreach (Match match in HanziInGraphemeHtmlRegex().Matches(graphemeWebsite))
             {
                 var hanzi = match.Groups[1].Value.Trim();
                 hanziList.Add(hanzi.Trim());
@@ -128,8 +118,8 @@ namespace SimiGraph
         /// <returns>Key is graphemes, value is List<FoundObj></returns>
         public KeyValuePair<string, List<FoundObj>> GetGraphemesAndResultList()
         {
-            List<FoundObj> resultList = new List<FoundObj>();
-            List<Task> hanziToListTasks = new List<Task>();
+            List<FoundObj> resultList = [];
+            List<Task> hanziToListTasks = [];
 
             #region Fetching and processing info about all hanzi
             foreach (var hanzi in hanziList)
@@ -142,7 +132,7 @@ namespace SimiGraph
                 hanziToListTasks.Add(hanziTask);
             }
 
-            Task.WaitAll(hanziToListTasks.ToArray());
+            Task.WaitAll([..hanziToListTasks]);
             #endregion
 
             resultList.RemoveAll(item => item == null);
@@ -150,5 +140,17 @@ namespace SimiGraph
 
             return new KeyValuePair<string, List<FoundObj>>(this.graphemes, resultList);
         }
+
+        [GeneratedRegex(@"同“([^“”]+)”")]
+        private static partial Regex TongRegex();
+
+        [GeneratedRegex("<[^>]*>")]
+        private static partial Regex HtmlTagRegex();
+
+        [GeneratedRegex(@"\d+")]
+        private static partial Regex NumberRegex();
+
+        [GeneratedRegex(@"<A[^>]*_blank>([^<]*)<\/A>")]
+        private static partial Regex HanziInGraphemeHtmlRegex();
     }
 }
