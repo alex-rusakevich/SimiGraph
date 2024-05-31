@@ -25,7 +25,7 @@ namespace SimiGraph
                 return;
             }
 
-            var graphemes = Regex.Replace(GraphemeTextBox.Text, @"\s+", "");
+            var graphemes = WhitespaceRegex().Replace(GraphemeTextBox.Text, "");
 
             ExecSearchButton.Enabled = false;
             GraphemeTextBox.Enabled = false;
@@ -36,9 +36,11 @@ namespace SimiGraph
                 var searcher = new Searcher(graphemes);
                 var graphemesAndResList = searcher.GetGraphemesAndResultList();
 
-                SaveFileDialog savefile = new SaveFileDialog();
-                savefile.FileName = graphemes;
-                savefile.Filter = "Веб-сайт (*.html)|*.html|Текстовый файл (*.txt)|*.txt|Все файлы (*.*)|*.*";
+                SaveFileDialog savefile = new()
+                {
+                    FileName = graphemes,
+                    Filter = "Веб-сайт (*.html)|*.html|Текстовый файл (*.txt)|*.txt|Все файлы (*.*)|*.*"
+                };
 
                 this.Invoke(new Action(() =>
                 {
@@ -47,17 +49,21 @@ namespace SimiGraph
                         string fileExt = Path.GetExtension(savefile.FileName.ToLower());
                         var fileFormatProcessor = FileFormatFactory.GetFormatProcessorByExt(fileExt);
 
-                        using(var fileStream = new FileStream(savefile.FileName, FileMode.OpenOrCreate))
+                        #region Save result to file
+                        using (var fileStream = new FileStream(savefile.FileName, FileMode.OpenOrCreate))
                         using (var resultStream = fileFormatProcessor.GenerateFormattedResult(
                             graphemesAndResList.Value, graphemesAndResList.Key, savefile.FileName))
                         {
                             resultStream.CopyTo(fileStream);
                         }
+                        #endregion
 
-                        var p = new Process();
-                        p.StartInfo = new ProcessStartInfo(savefile.FileName)
+                        var p = new Process
                         {
-                            UseShellExecute = true
+                            StartInfo = new ProcessStartInfo(savefile.FileName)
+                            {
+                                UseShellExecute = true
+                            }
                         };
                         p.Start();
                     }
@@ -84,5 +90,8 @@ namespace SimiGraph
                 this.ExecSearchButton.PerformClick();
             }
         }
+
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex WhitespaceRegex();
     }
 }
