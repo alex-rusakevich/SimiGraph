@@ -1,11 +1,7 @@
 using SimiGraph.FileFormat;
 using System.Diagnostics;
-using System.Net;
 using System.Runtime.ExceptionServices;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
-using System.Web;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SimiGraph
 {
